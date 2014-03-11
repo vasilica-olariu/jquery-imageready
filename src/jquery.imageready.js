@@ -3,17 +3,19 @@
 
 ;(function( $ ) {
   $.fn.imageready = function ( callback, userSettings ) {
-    var options = $.extend( {}, $.fn.imageready.defaults, userSettings ),
+    var $container = $(this),
+        options = $.extend( {}, $.fn.imageready.defaults, userSettings ),
         $images = this.find( 'img' ).add( this.filter( 'img' ) ),
         unloadedImages = $images.length;
 
-    if (callback == null) {
-      callback = function() {};
-    }
-
     function loaded () {
       unloadedImages--;
-      !unloadedImages && callback();
+      $container.trigger('imageready', $this);
+      if((unloadedImages > 0) || (callback == null))
+        return;
+
+      callback();
+      $container.trigger('imagesready');
     }
 
     function bindLoad () {
@@ -32,14 +34,14 @@
     }
 
     return $images.each(function () {
-      var $this = $( this );
-      if ( !$this.attr( 'src' ) ) {
-        loaded();
-        return;
-      }
-      this.complete || this.readyState === 4 ?
-        loaded() :
-        bindLoad.call( $this );
+      var $this = $(this);
+
+      if ( !$this.attr('src') )
+        return loaded.call($this);
+
+      (this.complete || this.readyState === 4)
+        ? loaded.call($this)
+        : bindLoad.call($this);
     });
   };
 
