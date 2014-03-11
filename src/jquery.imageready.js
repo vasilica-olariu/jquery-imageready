@@ -10,7 +10,7 @@
 
     function loaded () {
       unloadedImages--;
-      $container.trigger('imageready', $this);
+      $container.trigger('imageready', this);
       if((unloadedImages > 0) || (callback == null))
         return;
 
